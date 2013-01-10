@@ -12,7 +12,7 @@ import views.html.index;
 public class Application extends Controller {
   
   public static Result index() {
-    return ok(index.render("Your new application is ready."));
+    return ok(index.render("anonymous"));
   }
   
   public static WebSocket<JsonNode> chat(final String name) {
