@@ -15,19 +15,17 @@ public class Application extends Controller {
     return ok(index.render("anonymous"));
   }
   
-  public static WebSocket<JsonNode> chat(final String name) {
+  public static WebSocket<JsonNode> chat(final String id, final String name) {
     return new WebSocket<JsonNode>() {
-
 	@Override
 	public void onReady(play.mvc.WebSocket.In<JsonNode> in,
 		play.mvc.WebSocket.Out<JsonNode> out) {
 	    try{
-		ChatRoom.join(name, in, out);
+		ChatRoom.join(id, name, in, out);
 	    } catch(Exception exception) {
 		exception.printStackTrace();
 	    }
-	} 
-		
+	} 		
     };
       
   }

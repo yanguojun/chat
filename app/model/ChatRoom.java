@@ -40,33 +40,33 @@ public class ChatRoom extends UntypedActor {
     @Override
     public void onReceive(Object message) throws Exception {
 	if(message instanceof Join) {
-	    Join join = (Join) message;
-	    
-	    if(members.containsKey(join.userName)) {
-		this.getSender().tell("This username is already used");
+	    Join join = (Join) message;	    
+	    if(members.containsKey(join.userId)) {		;    
+		this.getSender().tell("this user id is already taken");
 	    } else {
-		members.put(join.userName, join.channel);
-		this.notifyAll("join", join.userName, "has entered the room");
+		members.put(join.userId, join.channel);
+		this.notifyAll("join", join.userId, join.userName, "님이 접속하셨습니다.");
 		this.getSender().tell("OK");
 	    }
 	} else if(message instanceof Talk) {
 	    Talk talk = (Talk) message;
-	    this.notifyAll("talk", talk.userName, talk.text);
+	    this.notifyAll("talk", talk.userId, talk.userName, talk.text);
 	} else if(message instanceof Quit) {
 	    Quit quit = (Quit) message;
-	    members.remove(quit.userName);
-	    this.notifyAll("quit", quit.userName, "has leaved the room");	    
+	    members.remove(quit.userId);
+	    this.notifyAll("quit", quit.userId, quit.userName, "님이 나가셨습니다.");	    
 	} else{
 	    this.unhandled(message);
 	}
     }
     
-    public void notifyAll(String kind, String user, String text) {
+    public void notifyAll(String kind, String userId, String userName, String text) {
 	for(WebSocket.Out<JsonNode> channel: members.values()) {
             
             ObjectNode event = Json.newObject();
             event.put("kind", kind);
-            event.put("user", user);
+            event.put("id", userId);
+            event.put("name", userName);
             event.put("message", text);
             
             ArrayNode m = event.putArray("members");
@@ -78,16 +78,16 @@ public class ChatRoom extends UntypedActor {
         }
     }
     
-    public static void join(final String userName, WebSocket.In<JsonNode> in, WebSocket.Out<JsonNode> out) throws Exception {
+    public static void join(final String userId, final String userName, WebSocket.In<JsonNode> in, WebSocket.Out<JsonNode> out) throws Exception {
 	String result = (String) Await.result(
-		ask(defaultRoom, new Join(userName, out), 1000)
+		ask(defaultRoom, new Join(userId, userName, out), 1000)
 		, Duration.create(1,  java.util.concurrent.TimeUnit.SECONDS));
 	
 	if(result.equals("OK")) {
 	    in.onMessage(new Callback<JsonNode>() {
 		@Override
 		public void invoke(JsonNode event) throws Throwable {
-		    defaultRoom.tell(new Talk(userName, event.get("text").asText()));
+		    defaultRoom.tell(new Talk(userId, userName, event.get("text").asText()));
 		}
 		
 	    });
@@ -96,7 +96,7 @@ public class ChatRoom extends UntypedActor {
 
 		@Override
 		public void invoke() throws Throwable {
-		   defaultRoom.tell(new Quit(userName));
+		   defaultRoom.tell(new Quit(userId, userName));
 		}
 		
 	    });
@@ -109,21 +109,24 @@ public class ChatRoom extends UntypedActor {
     }
     
     public static class Join {
+	final String userId;
 	final String userName;
 	final WebSocket.Out<JsonNode> channel;
 	
-	public Join(String userName, WebSocket.Out<JsonNode> channel) {
+	public Join(String userId, String userName, WebSocket.Out<JsonNode> channel) {
+	    this.userId = userId;
 	    this.userName = userName;
 	    this.channel = channel;
 	}
     }
     
     public static class Talk {
-        
+        final String userId;
         final String userName;
         final String text;
         
-        public Talk(String userName, String text) {
+        public Talk(String userId, String userName, String text) {
+            this.userId = userId;
             this.userName = userName;
             this.text = text;
         }
@@ -131,10 +134,11 @@ public class ChatRoom extends UntypedActor {
     }
     
     public static class Quit {
-        
+        final String userId;
         final String userName;
         
-        public Quit(String userName) {
+        public Quit(String userId, String userName) {
+            this.userId = userId;
             this.userName = userName;
         }
         

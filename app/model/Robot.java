@@ -28,13 +28,13 @@ public class Robot {
 	    }	    
 	};
 	
-	chatRoom.tell(new ChatRoom.Join("Robot", robotChannel));
+	chatRoom.tell(new ChatRoom.Join("robot", "갸루봇", robotChannel));
 	
 	Akka.system().scheduler().schedule(
 		Duration.create(30, java.util.concurrent.TimeUnit.SECONDS),
 		Duration.create(30, java.util.concurrent.TimeUnit.SECONDS),
 		chatRoom,
-		new ChatRoom.Talk("Robot", "I'm still alive")
+		new ChatRoom.Talk("robot", "갸루봇", "사람이 아니믑니다. 로봇이믑니다. 살아 있으믑니다.")
 	);
     }
 }
