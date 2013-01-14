@@ -28,7 +28,7 @@ public class Robot {
 	    }	    
 	};
 	
-	chatRoom.tell(new ChatRoom.Join("robot", "갸루봇", robotChannel));
+	chatRoom.tell(new ChatRoom.Join("robot", "갸루봇", "ghost", robotChannel));
 	
 	Akka.system().scheduler().schedule(
 		Duration.create(30, java.util.concurrent.TimeUnit.SECONDS),

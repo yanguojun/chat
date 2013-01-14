@@ -4,7 +4,7 @@
 
 # Home page
 GET     /                           	controllers.Application.index()
-GET     /room/chat              	controllers.Application.chat(id:java.lang.String, name:java.lang.String)
+GET     /room/chat              	controllers.Application.chat(id:java.lang.String, name:java.lang.String, location:java.lang.String)
 
 
 # Map static resources from the /public folder to the /assets URL path

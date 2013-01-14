@@ -35,17 +35,18 @@ public class ChatRoom extends UntypedActor {
 	new Robot(defaultRoom);
     }
     
-    Map<String, WebSocket.Out<JsonNode>> members = new HashMap<String, WebSocket.Out<JsonNode>>();    
+    //Map<String, WebSocket.Out<JsonNode>> members = new HashMap<String, WebSocket.Out<JsonNode>>();
+    Map<String, Session> members = new HashMap<String, Session>(); 
     
     @Override
     public void onReceive(Object message) throws Exception {
 	if(message instanceof Join) {
 	    Join join = (Join) message;	    
 	    if(members.containsKey(join.userId)) {		;    
-		this.getSender().tell("this user id is already taken");
+		this.getSender().tell("이미 다른 브라우저에서 접속 중 입니다. 기존 접속을 끊어주십시오.");
 	    } else {
-		members.put(join.userId, join.channel);
-		this.notifyAll("join", join.userId, join.userName, "님이 접속하셨습니다.");
+		members.put(join.userId, new Session(join.userId, join.userName, join.location, join.channel));
+		this.notifyAll("join", join.userId, join.userName, join.location);
 		this.getSender().tell("OK");
 	    }
 	} else if(message instanceof Talk) {
@@ -54,14 +55,14 @@ public class ChatRoom extends UntypedActor {
 	} else if(message instanceof Quit) {
 	    Quit quit = (Quit) message;
 	    members.remove(quit.userId);
-	    this.notifyAll("quit", quit.userId, quit.userName, "님이 나가셨습니다.");	    
+	    //this.notifyAll("quit", quit.userId, quit.userName, "님이 나가셨습니다.");	    
 	} else{
 	    this.unhandled(message);
 	}
     }
     
     public void notifyAll(String kind, String userId, String userName, String text) {
-	for(WebSocket.Out<JsonNode> channel: members.values()) {
+	for(Session session: members.values()) {
             
             ObjectNode event = Json.newObject();
             event.put("kind", kind);
@@ -70,17 +71,18 @@ public class ChatRoom extends UntypedActor {
             event.put("message", text);
             
             ArrayNode m = event.putArray("members");
-            for(String u: members.keySet()) {
-                m.add(u);
+
+            for(Session s : members.values()) {
+        	m.add(s.getName() + "(" + s.getId() + ") - " + s.getLocation());        	
             }
             
-            channel.write(event);
+            session.getChannel().write(event);            
         }
     }
     
-    public static void join(final String userId, final String userName, WebSocket.In<JsonNode> in, WebSocket.Out<JsonNode> out) throws Exception {
+    public static void join(final String userId, final String userName, final String location, WebSocket.In<JsonNode> in, WebSocket.Out<JsonNode> out) throws Exception {
 	String result = (String) Await.result(
-		ask(defaultRoom, new Join(userId, userName, out), 1000)
+		ask(defaultRoom, new Join(userId, userName, location, out), 1000)
 		, Duration.create(1,  java.util.concurrent.TimeUnit.SECONDS));
 	
 	if(result.equals("OK")) {
@@ -111,11 +113,13 @@ public class ChatRoom extends UntypedActor {
     public static class Join {
 	final String userId;
 	final String userName;
+	final String location;
 	final WebSocket.Out<JsonNode> channel;
 	
-	public Join(String userId, String userName, WebSocket.Out<JsonNode> channel) {
+	public Join(String userId, String userName, String location, WebSocket.Out<JsonNode> channel) {
 	    this.userId = userId;
 	    this.userName = userName;
+	    this.location = location;
 	    this.channel = channel;
 	}
     }
