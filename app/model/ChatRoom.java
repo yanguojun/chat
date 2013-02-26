@@ -42,7 +42,7 @@ public class ChatRoom extends UntypedActor {
     public void onReceive(Object message) throws Exception {
 	if(message instanceof Join) {
 	    Join join = (Join) message;	    
-	    if(members.containsKey(join.userId)) {		;    
+	    if(members.containsKey(join.userId)) {    
 		this.getSender().tell("이미 다른 브라우저에서 접속 중 입니다. 기존 접속을 끊어주십시오.");
 	    } else {
 		members.put(join.userId, new Session(join.userId, join.userName, join.location, join.channel));
