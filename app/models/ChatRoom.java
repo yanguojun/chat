@@ -43,11 +43,11 @@ public class ChatRoom extends UntypedActor {
 	if(message instanceof Join) {
 	    Join join = (Join) message;	    
 	    if(members.containsKey(join.userId)) {    
-		this.getSender().tell("이미 다른 브라우저에서 접속 중 입니다. 기존 접속을 끊어주십시오.");
+		this.getSender().tell("이미 다른 브라우저에서 접속 중 입니다. 기존 접속을 끊어주십시오.", defaultRoom);
 	    } else {
 		members.put(join.userId, new Session(join.userId, join.userName, join.location, join.channel));
 		this.notifyAll("join", join.userId, join.userName, join.location);
-		this.getSender().tell("OK");
+		this.getSender().tell("OK", defaultRoom);
 	    }
 	} else if(message instanceof Talk) {
 	    Talk talk = (Talk) message;
@@ -89,7 +89,7 @@ public class ChatRoom extends UntypedActor {
 	    in.onMessage(new Callback<JsonNode>() {
 		@Override
 		public void invoke(JsonNode event) throws Throwable {
-		    defaultRoom.tell(new Talk(userId, userName, event.get("text").asText()));
+		    defaultRoom.tell(new Talk(userId, userName, event.get("text").asText()), defaultRoom);
 		}
 		
 	    });
@@ -98,7 +98,7 @@ public class ChatRoom extends UntypedActor {
 
 		@Override
 		public void invoke() throws Throwable {
-		   defaultRoom.tell(new Quit(userId, userName));
+		   defaultRoom.tell(new Quit(userId, userName), defaultRoom);
 		}
 		
 	    });
