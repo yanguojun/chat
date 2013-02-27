@@ -3,7 +3,7 @@
 # ~~~~
 
 # Home page
-GET     /                           	controllers.Application.index()
+GET     /                           controllers.Application.index()
 GET     /room/chat              	controllers.Application.chat(id:java.lang.String, name:java.lang.String, location:java.lang.String)
 
 

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package model;
+package models;
 
 import static akka.pattern.Patterns.ask;
 
@@ -20,8 +20,8 @@ import play.mvc.WebSocket;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
-import akka.dispatch.Await;
-import akka.util.Duration;
+import scala.concurrent.Await;
+import scala.concurrent.duration.Duration;
 
 /**
  * @author seoi

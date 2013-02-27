@@ -1,7 +1,7 @@
 /**
  * 
  */
-package model;
+package models;
 
 import org.codehaus.jackson.JsonNode;
 
@@ -9,8 +9,9 @@ import play.Logger;
 import play.libs.Akka;
 import play.libs.Json;
 import play.mvc.WebSocket;
-import akka.actor.ActorRef;
-import akka.util.Duration;
+import akka.actor.*;
+import akka.dispatch.*;
+import scala.concurrent.duration.*;
 
 /**
  * @author seoi
@@ -34,7 +35,8 @@ public class Robot {
 		Duration.create(30, java.util.concurrent.TimeUnit.SECONDS),
 		Duration.create(30, java.util.concurrent.TimeUnit.SECONDS),
 		chatRoom,
-		new ChatRoom.Talk("robot", "갸루봇", "사람이 아니믑니다. 로봇이믑니다. 살아 있으믑니다.")
+		new ChatRoom.Talk("robot", "갸루봇", "사람이 아니믑니다. 로봇이믑니다. 살아 있으믑니다."),
+		Akka.system().dispatcher()
 	);
     }
 }

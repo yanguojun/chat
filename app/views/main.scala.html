@@ -1,7 +1,5 @@
 @(name: String)(content: Html)
-
 <!DOCTYPE html>
-
 <html>
     <head>
         <title>Websocket Application</title>
@@ -11,7 +9,8 @@
     <body>
         @content
         <p>
-        	You can try it by using the link below<br/>@routes.Application.chat("id","name","location").webSocketURL(request);
+        	You can try it by using the link below<br/>
+        	@routes.Application.chat("id","name","location").webSocketURL(request)
         </p>
     </body>
 </html>
