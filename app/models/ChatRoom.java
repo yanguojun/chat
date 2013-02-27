@@ -6,7 +6,9 @@ package models;
 import static akka.pattern.Patterns.ask;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.node.ArrayNode;
@@ -17,11 +19,11 @@ import play.libs.F.Callback;
 import play.libs.F.Callback0;
 import play.libs.Json;
 import play.mvc.WebSocket;
+import scala.concurrent.Await;
+import scala.concurrent.duration.Duration;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
-import scala.concurrent.Await;
-import scala.concurrent.duration.Duration;
 
 /**
  * @author seoi
@@ -30,9 +32,20 @@ import scala.concurrent.duration.Duration;
 public class ChatRoom extends UntypedActor {
 
     static ActorRef defaultRoom = Akka.system().actorOf(new Props(ChatRoom.class));
+    static Set<String> mentions = new HashSet<String>();
+    static{
+	mentions.add("사람이 아니믑니다. 로봇이믑니다. 살아 있으믑니다.");
+	mentions.add("혼자 말할 수 있는 인공지능 봇입니다.");
+	mentions.add("떠드는데도 이골이 났습니다.");
+	mentions.add("제가 몇 초마다 떠드는지 세어보세요.");
+	mentions.add("Akka 라이브러리를 기반으로 비동기로 말합니다.");
+	mentions.add("넷마블 어딘가에 실제로 존재합니다.");
+	mentions.add("프로젝트들 하신다고 고생들 많으십니다.");
+	mentions.add("당신도 뭐라고 말 좀 해보세요.");
+    }
     
     static {
-	new Robot(defaultRoom);
+	new Robot(defaultRoom, "gbot","갸루봇", mentions);
     }
     
     //Map<String, WebSocket.Out<JsonNode>> members = new HashMap<String, WebSocket.Out<JsonNode>>();
